@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haiku Generator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Serif JP', serif;
+            background: linear-gradient(to bottom, #f7f1e8 0%, #e8dcc0 100%);
+            min-height: 100vh;
+            padding: 20px;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(255, 182, 193, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(173, 216, 230, 0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #fefefe;
+            border: 1px solid #d4af37;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, #d4af37, #b8860b);
+            z-index: -1;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8b0000 0%, #dc143c 100%);
+            color: #f5f5dc;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            border-bottom: 3px solid #d4af37;
+        }
+
+        .header::after {
+            content: '桜';
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3em;
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 8px;
+            font-weight: 300;
+            letter-spacing: 3px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-style: italic;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 50px 40px;
+            background: #fefefe;
+        }
+
+        .form-section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: rgba(248, 248, 255, 0.5);
+            border-left: 4px solid #dc143c;
+        }
+
+        .form-group { margin-bottom: 25px; }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 400;
+            color: #2c1810;
+            font-size: 1.1em;
+            letter-spacing: 1px;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #d4af37;
+            background: #fffef7;
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            border-radius: 0;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #dc143c;
+            background: #fff;
+            box-shadow: inset 0 2px 8px rgba(220, 20, 60, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+            color: #f5f5dc;
+            padding: 18px 40px;
+            border: 2px solid #d4af37;
+            font-size: 18px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #8b0000 0%, #dc143c 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+        }
+
+        .btn::before {
+            content: '詩';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2em;
+            opacity: 0.7;
+        }
+
+        .haiku-display {
+            background: linear-gradient(135deg, #fff9e6 0%, #f5f5dc 100%);
+            padding: 40px;
+            margin-top: 40px;
+            text-align: center;
+            display: none;
+            border: 3px double #d4af37;
+            position: relative;
+        }
+
+        .haiku-display::before,
+        .haiku-display::after {
+            content: '🌸';
+            position: absolute;
+            font-size: 2em;
+            opacity: 0.3;
+        }
+
+        .haiku-display::before {
+            top: 15px;
+            left: 20px;
+        }
+
+        .haiku-display::after {
+            bottom: 15px;
+            right: 20px;
+        }
+
+        .haiku-text {
+            font-size: 1.6em;
+            line-height: 2.2;
+            color: #2c1810;
+            white-space: pre-line;
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .history-section {
+            margin-top: 50px;
+            padding-top: 40px;
+            border-top: 3px double #d4af37;
+        }
+
+        .history-section h2 {
+            color: #8b0000;
+            margin-bottom: 25px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .haiku-item {
+            background: linear-gradient(135deg, #fff9e6 0%, #f5f5dc 100%);
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #dc143c;
+            border-right: 1px solid #d4af37;
+            position: relative;
+        }
+
+        .haiku-item::before {
+            content: '俳句';
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 0.8em;
+            color: #d4af37;
+            opacity: 0.6;
+        }
+
+        .haiku-meta {
+            font-size: 0.95em;
+            color: #8b4513;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            color: #8b0000;
+        }
+
+        .spinner {
+            border: 3px solid #f5f5dc;
+            border-top: 3px solid #dc143c;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            animation: spin 1.5s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Subtle paper texture */
+        .container {
+            background-image:
+                radial-gradient(circle at 100% 50%, transparent 20%, rgba(255,255,255,0.3) 21%, rgba(255,255,255,0.3) 34%, transparent 35%, transparent),
+                linear-gradient(0deg, transparent 24%, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,0.05) 75%, rgba(255,255,255,0.05) 76%, transparent 77%, transparent);
+            background-size: 30px 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌸 Haiku Generator</h1>
+            <p>Create beautiful haikus with AI</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <form id="haikuForm">
+                    <div class="form-group">
+                        <label for="theme">Theme:</label>
+                        <input type="text" id="theme" name="theme" placeholder="nature, love, technology..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="season">Season:</label>
+                        <select id="season" name="season" required>
+                            <option value="">Select a season</option>
+                            <option value="spring">Spring</option>
+                            <option value="summer">Summer</option>
+                            <option value="autumn">Autumn</option>
+                            <option value="winter">Winter</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mood">Mood:</label>
+                        <select id="mood" name="mood" required>
+                            <option value="">Select a mood</option>
+                            <option value="peaceful">Peaceful</option>
+                            <option value="melancholy">Melancholy</option>
+                            <option value="joyful">Joyful</option>
+                            <option value="contemplative">Contemplative</option>
+                            <option value="nostalgic">Nostalgic</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="keywords">Keywords (optional):</label>
+                        <input type="text" id="keywords" name="keywords" placeholder="cherry blossoms, moonlight, silence...">
+                    </div>
+
+                    <button type="submit" class="btn">Generate Haiku</button>
+                </form>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Crafting your haiku...</p>
+            </div>
+
+            <div class="haiku-display" id="haikuDisplay">
+                <div class="haiku-text" id="haikuText"></div>
+            </div>
+
+            <div class="history-section">
+                <h2>Previous Haikus</h2>
+                <button type="button" class="btn" onclick="loadHistory()" style="margin-bottom: 20px;">Load History</button>
+                <div id="historyContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('haikuForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const loading = document.getElementById('loading');
+            const haikuDisplay = document.getElementById('haikuDisplay');
+
+            loading.style.display = 'block';
+            haikuDisplay.style.display = 'none';
+
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('haikuText').textContent = result.haiku;
+                    haikuDisplay.style.display = 'block';
+                } else {
+                    alert('Error generating haiku: ' + result.detail);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+
+        async function loadHistory() {
+            try {
+                const response = await fetch('/history');
+                const result = await response.json();
+
+                const container = document.getElementById('historyContainer');
+                container.innerHTML = '';
+
+                if (result.haikus && result.haikus.length > 0) {
+                    result.haikus.forEach(haiku => {
+                        const div = document.createElement('div');
+                        div.className = 'haiku-item';
+                        div.innerHTML = `
+                            <div class="haiku-meta">
+                                Theme: ${haiku.theme} | Season: ${haiku.season} | Mood: ${haiku.mood}
+                                ${haiku.keywords ? `| Keywords: ${haiku.keywords}` : ''}
+                            </div>
+                            <div class="haiku-text">${haiku.haiku_text}</div>
+                        `;
+                        container.appendChild(div);
+                    });
+                } else {
+                    container.innerHTML = '<p>No haikus found. Generate your first haiku above!</p>';
+                }
+            } catch (error) {
+                alert('Error loading history: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

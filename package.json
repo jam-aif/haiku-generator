@@ -1,0 +1,15 @@
+{
+  "name": "haiku-generator",
+  "version": "1.0.0",
+  "description": "AI-powered haiku generator with traditional Japanese aesthetic",
+  "main": "main.py",
+  "scripts": {
+    "dev": "python3 main.py",
+    "deploy": "wrangler pages publish . --project-name=haiku-generator",
+    "preview": "wrangler pages dev ."
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
